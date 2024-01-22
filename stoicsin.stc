@@ -1,0 +1,50 @@
+
+
+
+% ***************************************************************************
+% ** COPYRIGHT (C) MASSACHUSETTS INSTITUTE OF TECHNOLOGY AND HARVARD       **
+% ** UNIVERSITY, BIOMEDICAL ENGINEERING CENTER 1977.  ALL RIGHTS RESERVED. **
+% ***************************************************************************
+
+% 16-BIT FIXED POINT SINE AND COSINE
+% INPUT SCALING:  +-PI = 100000 (OCTAL)
+% OUTPUT SCALING: 1.00 = 040000 (OCTAL)
+
+RADIX @ OCTAL
+
+'*2L : M* 2 DLSHIFT UNDER ;
+
+'SIN1 : DUP DUP *2L DUP -107 *2L 2425 + OVER *2L -24526
+  + *2L 62210 + *2L ;
+
+'SIN : DUP 40000 + LTZ IF 77777 XOR 1+ THEN SIN1 ;
+'COS : 40000 + SIN ;
+
+% 16-BIT FIXED POINT SQUARE ROOT OF SUM OF SQUARES
+% A B RSS
+% RESULT IS SAME SCALE AS INPUTS
+
+'RSS CODE<
+  H POP,  H A MOV,  A ORA,  -HL CM,
+  D POP,  D A MOV,  A ORA,  -DE CM,
+  H PUSH,  D PUSH,
+  E A MOV,  L SUB,  D A MOV,  H SBB,  IFNC,  XCHG,  THEN,
+  H A MOV,  A ORA,  RAR,  A H MOV,  L A MOV,  RAR,  A L MOV,
+  D DAD,  T1 SHLD,
+  H POP,  H D MOV,  L E MOV,  MUL CALL,
+  T1 2+ SHLD,  XCHG,  T1 4 + SHLD,
+  H POP,  H D MOV,  L E MOV,  MUL CALL,
+  H B MOV,  L C MOV,  T1 4 + LHLD,  D DAD,  IFNC,  B INX,  THEN,
+  H PUSH,  T1 2+ LHLD,  B DAD,  H PUSH,  T1 LHLD,  H B MOV,
+  L C MOV,  H POP,  D POP,  D PUSH,  H PUSH,
+  DIV CALL,  T1 LHLD,  D DAD,  H A MOV,  A ORA,  RAR,  A H MOV,
+  L A MOV,  RAR,  A L MOV,  T1 SHLD,  H B MOV,  L C MOV,  H POP,  D POP,
+  DIV CALL,  T1 LHLD,  D DAD,  H A MOV,  A ORA,  RAR,  A H MOV,
+  L A MOV,  RAR,  A L MOV,  PUSH JMP,  >
+
+RADIX !
+;F
+
+
+***EOF***
+
